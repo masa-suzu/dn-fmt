@@ -20,8 +20,8 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
     {
         internal class Options
         {
-            private ImmutableArray<ImmutableDictionary<string, Tristate>> _symbolConfigurations;
-            private Tristate _undefinedSymbolValue;
+            private ImmutableArray<ImmutableDictionary<string, Tristate>> m_symbolConfigurations;
+            private Tristate m_undefinedSymbolValue;
 
             public ImmutableArray<Document> Documents { get; private set; }
 
@@ -66,20 +66,20 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
                     Documents = solution.Projects.Single().Documents.ToImmutableArray();
                 }
 
-                _symbolConfigurations = CalculateSymbolConfigurations(
+                m_symbolConfigurations = CalculateSymbolConfigurations(
                     alwaysDisabledSymbols,
                     alwaysDefinedSymbols,
                     alwaysIgnoredSymbols,
                     symbolConfigurations);
 
-                _undefinedSymbolValue = undefinedSymbolValue;
+                m_undefinedSymbolValue = undefinedSymbolValue;
 
                 Logger = logger ?? new ConsoleAnalysisLogger();
             }
 
             internal CompositePreprocessorExpressionEvaluator GetPreprocessorExpressionEvaluator()
             {
-                var evaluators = _symbolConfigurations.Select(config => new PreprocessorExpressionEvaluator(config, _undefinedSymbolValue));
+                var evaluators = m_symbolConfigurations.Select(config => new PreprocessorExpressionEvaluator(config, m_undefinedSymbolValue));
                 return new CompositePreprocessorExpressionEvaluator(evaluators);
             }
 
@@ -87,7 +87,7 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
             {
                 var specifiedSymbols = new HashSet<string>(StringComparer.Ordinal);
 
-                foreach (var config in _symbolConfigurations)
+                foreach (var config in m_symbolConfigurations)
                 {
                     foreach (string symbol in config.Keys)
                     {

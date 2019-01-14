@@ -21,7 +21,7 @@ namespace DeadRegions
         private static readonly Regex s_valueRegex = new Regex(@"\G\s*((""(?<value>[^""]+)"")|(?<value>[^""^/^-^\s]+))\s*", RegexOptions.ExplicitCapture);
         private static readonly Regex s_responseFileRegex = new Regex(@"\G@((""(?<file>[^""]+)"")|(?<file>\S+))\s*", RegexOptions.ExplicitCapture);
 
-        private Dictionary<string, Option> _options = new Dictionary<string, Option>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, Option> m_options = new Dictionary<string, Option>(StringComparer.OrdinalIgnoreCase);
 
         public string Usage
         {
@@ -30,7 +30,7 @@ namespace DeadRegions
                 var sb = new StringBuilder();
                 sb.AppendLine("OPTIONS");
 
-                foreach (var option in _options.Values)
+                foreach (var option in m_options.Values)
                 {
                     sb.AppendLine(option.Usage);
                 }
@@ -45,7 +45,7 @@ namespace DeadRegions
 
         public void Add(string name, Action<string> action, string parameterUsage = null, string description = null, bool allowMultiple = false)
         {
-            _options.Add(name, new Option(name, action,
+            m_options.Add(name, new Option(name, action,
                 requiresValue: true,
                 parameterUsage: parameterUsage,
                 description: description,
@@ -54,7 +54,7 @@ namespace DeadRegions
 
         public void Add(string name, Action action, string description = null)
         {
-            _options.Add(name, new Option(name, action,
+            m_options.Add(name, new Option(name, action,
                 requiresValue: false,
                 parameterUsage: null,
                 description: description,
@@ -82,7 +82,7 @@ namespace DeadRegions
                     string optionName = optionMatch.Groups["name"].Value;
 
                     Option option;
-                    if (_options.TryGetValue(optionName, out option))
+                    if (m_options.TryGetValue(optionName, out option))
                     {
                         if (option.RequiresValue)
                         {
@@ -151,7 +151,7 @@ namespace DeadRegions
             public readonly bool AllowMultiple;
 
             public readonly string _description;
-            private readonly string _parameterUsage;
+            private readonly string m_parameterUsage;
 
             public Option(string name, Delegate action, bool requiresValue, string parameterUsage, string description, bool allowMultiple)
             {
@@ -160,7 +160,7 @@ namespace DeadRegions
                 RequiresValue = requiresValue;
                 AllowMultiple = allowMultiple;
 
-                _parameterUsage = parameterUsage;
+                m_parameterUsage = parameterUsage;
                 _description = description;
             }
 
@@ -172,9 +172,9 @@ namespace DeadRegions
                     sb.Append("  /");
                     sb.Append(Name);
                     sb.Append(' ');
-                    if (_parameterUsage != null)
+                    if (m_parameterUsage != null)
                     {
-                        sb.Append(_parameterUsage);
+                        sb.Append(m_parameterUsage);
                     }
                     sb.Append(Environment.NewLine);
                     if (_description != null)

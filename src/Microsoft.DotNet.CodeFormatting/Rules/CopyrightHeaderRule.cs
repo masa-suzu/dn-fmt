@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis;
 
 namespace Microsoft.DotNet.CodeFormatting.Rules
 {
-    [SyntaxRule(CopyrightHeaderRule.Name, CopyrightHeaderRule.Description, SyntaxRuleOrder.CopyrightHeaderRule, DefaultRule=false)]
+    [SyntaxRule(CopyrightHeaderRule.Name, CopyrightHeaderRule.Description, SyntaxRuleOrder.CopyrightHeaderRule, DefaultRule = false)]
     internal sealed partial class CopyrightHeaderRule : SyntaxFormattingRule, ISyntaxFormattingRule
     {
         internal const string Name = FormattingDefaults.CopyrightRuleName;
@@ -24,16 +24,16 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             /// <summary>
             /// This is the normalized copyright header that has no comment delimiters.
             /// </summary>
-            private readonly ImmutableArray<string> _header;
+            private readonly ImmutableArray<string> m_header;
 
             protected CommonRule(ImmutableArray<string> header)
             {
-                _header = header;
+                m_header = header;
             }
 
             internal SyntaxNode Process(SyntaxNode syntaxNode)
             {
-                if (_header.IsDefaultOrEmpty)
+                if (m_header.IsDefaultOrEmpty)
                 {
                     return syntaxNode;
                 }
@@ -47,7 +47,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             private bool HasCopyrightHeader(SyntaxNode syntaxNode)
             {
                 var existingHeader = GetExistingHeader(syntaxNode.GetLeadingTrivia());
-                return SequnceStartsWith(_header, existingHeader);
+                return SequnceStartsWith(m_header, existingHeader);
             }
 
             private bool SequnceStartsWith(ImmutableArray<string> header, List<string> existingHeader)
@@ -64,7 +64,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             private SyntaxNode AddCopyrightHeader(SyntaxNode syntaxNode)
             {
                 var list = new List<SyntaxTrivia>();
-                foreach (var headerLine in _header)
+                foreach (var headerLine in m_header)
                 {
                     list.Add(CreateLineComment(headerLine));
                     list.Add(CreateNewLine());
@@ -165,25 +165,25 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             protected abstract SyntaxTrivia CreateNewLine();
         }
 
-        private readonly Options _options;
-        private ImmutableArray<string> _cachedHeader;
-        private ImmutableArray<string> _cachedHeaderSource;
+        private readonly Options m_options;
+        private ImmutableArray<string> m_cachedHeader;
+        private ImmutableArray<string> m_cachedHeaderSource;
 
         [ImportingConstructor]
         internal CopyrightHeaderRule(Options options)
         {
-            _options = options;
+            m_options = options;
         }
 
         private ImmutableArray<string> GetHeader()
         {
-            if (_cachedHeaderSource != _options.CopyrightHeader)
+            if (m_cachedHeaderSource != m_options.CopyrightHeader)
             {
-                _cachedHeaderSource = _options.CopyrightHeader;
-                _cachedHeader = _options.CopyrightHeader.Select(GetCommentText).ToImmutableArray();
+                m_cachedHeaderSource = m_options.CopyrightHeader;
+                m_cachedHeader = m_options.CopyrightHeader.Select(GetCommentText).ToImmutableArray();
             }
 
-            return _cachedHeader;
+            return m_cachedHeader;
         }
 
         private static string GetCommentText(string line)

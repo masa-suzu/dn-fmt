@@ -78,12 +78,12 @@ namespace CodeFormatter
 
     public sealed class CommandLineParseResult
     {
-        private readonly CommandLineOptions _options;
-        private readonly string _error;
+        private readonly CommandLineOptions m_options;
+        private readonly string m_error;
 
         public bool IsSuccess
         {
-            get { return _options != null; }
+            get { return m_options != null; }
         }
 
         public bool IsError
@@ -96,7 +96,7 @@ namespace CodeFormatter
             get
             {
                 Debug.Assert(IsSuccess);
-                return _options;
+                return m_options;
             }
         }
 
@@ -105,14 +105,14 @@ namespace CodeFormatter
             get
             {
                 Debug.Assert(IsError);
-                return _error;
+                return m_error;
             }
         }
 
         private CommandLineParseResult(CommandLineOptions options = null, string error = null)
         {
-            _options = options;
-            _error = error;
+            m_options = options;
+            m_error = error;
         }
 
         public static CommandLineParseResult CreateSuccess(CommandLineOptions options)
@@ -216,9 +216,8 @@ namespace CodeFormatter
                         return CommandLineParseResult.CreateError(error);
                     }
                 }
-                else if (comparer.Equals(arg, "/copyright-") || comparer.Equals(arg, "/nocopyright")) 
+                else if (comparer.Equals(arg, "/copyright-") || comparer.Equals(arg, "/nocopyright"))
                 {   // We still check /nocopyright for backwards compat
-
                     ruleMap = ruleMap.SetItem(FormattingDefaults.CopyrightRuleName, false);
                 }
                 else if (arg.StartsWith(LanguageSwitch, comparison))

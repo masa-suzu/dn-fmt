@@ -13,16 +13,16 @@ namespace Microsoft.DotNet.CodeFormatting
     /// </summary>
     internal sealed class SemaphoreLock : IDisposable
     {
-        private SemaphoreSlim _semaphore;
+        private SemaphoreSlim m_semaphore;
 
         private SemaphoreLock(SemaphoreSlim semaphore)
         {
-            _semaphore = semaphore;
+            m_semaphore = semaphore;
         }
 
         public void Dispose()
         {
-            var semaphore = Interlocked.Exchange(ref _semaphore, null);
+            var semaphore = Interlocked.Exchange(ref m_semaphore, null);
             if (semaphore != null)
             {
                 semaphore.Release();

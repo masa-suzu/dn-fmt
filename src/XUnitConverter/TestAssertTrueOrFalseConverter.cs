@@ -17,11 +17,11 @@ namespace XUnitConverter
 {
     public sealed class TestAssertTrueOrFalseConverter : ConverterBase
     {
-        private readonly AssertTrueOrFalseRewriter _rewriter = new AssertTrueOrFalseRewriter();
+        private readonly AssertTrueOrFalseRewriter m_rewriter = new AssertTrueOrFalseRewriter();
 
         protected override Task<Solution> ProcessAsync(Document document, SyntaxNode syntaxNode, CancellationToken cancellationToken)
         {
-            var newNode = _rewriter.Visit(syntaxNode);
+            var newNode = m_rewriter.Visit(syntaxNode);
             if (newNode != syntaxNode)
             {
                 document = document.WithSyntaxRoot(newNode);

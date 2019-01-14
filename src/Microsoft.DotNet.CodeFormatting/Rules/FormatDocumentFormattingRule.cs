@@ -23,12 +23,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
     {
         internal const string Name = "FormatDocument";
         internal const string Description = "Run the language specific formatter on every document";
-        private readonly Options _options;
+        private readonly Options m_options;
 
         [ImportingConstructor]
         internal FormatDocumentFormattingRule(Options options)
         {
-            _options = options;
+            m_options = options;
         }
 
         public bool SupportsLanguage(string languageName)
@@ -42,11 +42,11 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         {
             document = await Formatter.FormatAsync(document, cancellationToken: cancellationToken);
 
-            if (!_options.PreprocessorConfigurations.IsDefaultOrEmpty)
+            if (!m_options.PreprocessorConfigurations.IsDefaultOrEmpty)
             {
                 var project = document.Project;
                 var parseOptions = document.Project.ParseOptions;
-                foreach (var configuration in _options.PreprocessorConfigurations)
+                foreach (var configuration in m_options.PreprocessorConfigurations)
                 {
                     var list = new List<string>(configuration.Length + 1);
                     list.AddRange(configuration);

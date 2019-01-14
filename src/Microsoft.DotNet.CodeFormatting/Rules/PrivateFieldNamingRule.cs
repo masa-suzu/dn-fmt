@@ -170,8 +170,8 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             s_markerAnnotationArray = new[] { s_markerAnnotation };
         }
 
-        private readonly CSharpRule _csharpRule = new CSharpRule();
-        private readonly VisualBasicRule _visualBasicRule = new VisualBasicRule();
+        private readonly CSharpRule m_csharpRule = new CSharpRule();
+        private readonly VisualBasicRule m_visualBasicRule = new VisualBasicRule();
 
         public bool SupportsLanguage(string languageName)
         {
@@ -185,9 +185,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             switch (document.Project.Language)
             {
                 case LanguageNames.CSharp:
-                    return _csharpRule.ProcessAsync(document, syntaxRoot, cancellationToken);
+                    return m_csharpRule.ProcessAsync(document, syntaxRoot, cancellationToken);
                 case LanguageNames.VisualBasic:
-                    return _visualBasicRule.ProcessAsync(document, syntaxRoot, cancellationToken);
+                    return m_visualBasicRule.ProcessAsync(document, syntaxRoot, cancellationToken);
                 default:
                     throw new NotSupportedException();
             }

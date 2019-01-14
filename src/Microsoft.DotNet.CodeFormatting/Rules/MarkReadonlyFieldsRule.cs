@@ -23,8 +23,8 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         internal const string Name = "ReadonlyFields";
         internal const string Description = "Mark fields which can be readonly as readonly";
 
-        private readonly SemaphoreSlim _processUsagesLock = new SemaphoreSlim(1, 1);
-        private ConcurrentDictionary<IFieldSymbol, bool> _unwrittenWritableFields;
+        private readonly SemaphoreSlim m_processUsagesLock = new SemaphoreSlim(1, 1);
+        private ConcurrentDictionary<IFieldSymbol, bool> m_unwrittenWritableFields;
 
         public bool SupportsLanguage(string languageName)
         {
@@ -36,9 +36,9 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             SyntaxNode syntaxRoot,
             CancellationToken cancellationToken)
         {
-            if (_unwrittenWritableFields == null)
+            if (m_unwrittenWritableFields == null)
             {
-                using (await SemaphoreLock.GetAsync(_processUsagesLock))
+                using (await SemaphoreLock.GetAsync(m_processUsagesLock))
                 {
                     // A global analysis must be run before we can do any actual processing, because a field might
                     // be written in a different file than it is declared (even private ones may be split between
@@ -46,7 +46,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
                     // It's also quite expensive, which is why it's being done inside the lock, so
                     // that the entire solution is not processed for each input file individually
-                    if (_unwrittenWritableFields == null)
+                    if (m_unwrittenWritableFields == null)
                     {
                         List<Document> allDocuments =
                             document.Project.Solution.Projects.SelectMany(p => p.Documents).ToList();
@@ -67,12 +67,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                                         writableFields,
                                         cancellationToken)));
 
-                        _unwrittenWritableFields = writableFields;
+                        m_unwrittenWritableFields = writableFields;
                     }
                 }
             }
 
-            if (_unwrittenWritableFields.Count == 0)
+            if (m_unwrittenWritableFields.Count == 0)
             {
                 // If there are no unwritten writable fields, skip all the rewriting
                 return document.Project.Solution;
@@ -80,7 +80,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             SyntaxNode root = await document.GetSyntaxRootAsync(cancellationToken);
             var application = new ReadonlyRewriter(
-                _unwrittenWritableFields,
+                m_unwrittenWritableFields,
                 await document.GetSemanticModelAsync(cancellationToken));
             return document.Project.Solution.WithDocumentSyntaxRoot(document.Id, application.Visit(root));
         }
@@ -100,14 +100,14 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 "System.ComponentModel.Composition.ImportManyAttribute",
             };
 
-            private readonly HashSet<IFieldSymbol> _fields = new HashSet<IFieldSymbol>();
-            private readonly ISymbol _internalsVisibleToAttribute;
-            private readonly SemanticModel _model;
+            private readonly HashSet<IFieldSymbol> m_fields = new HashSet<IFieldSymbol>();
+            private readonly ISymbol m_internalsVisibleToAttribute;
+            private readonly SemanticModel m_model;
 
             private WritableFieldScanner(SemanticModel model)
             {
-                _model = model;
-                _internalsVisibleToAttribute =
+                m_model = model;
+                m_internalsVisibleToAttribute =
                     model.Compilation.GetTypeByMetadataName(
                         "System.Runtime.CompilerServices.InternalsVisibleToAttribute");
             }
@@ -119,19 +119,19 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 var scanner = new WritableFieldScanner(
                     await document.GetSemanticModelAsync(cancellationToken));
                 scanner.Visit(await document.GetSyntaxRootAsync(cancellationToken));
-                return scanner._fields;
+                return scanner.m_fields;
             }
 
             public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
             {
-                var fieldSymbol = (IFieldSymbol)_model.GetDeclaredSymbol(node.Declaration.Variables[0]);
+                var fieldSymbol = (IFieldSymbol)m_model.GetDeclaredSymbol(node.Declaration.Variables[0]);
 
                 if (fieldSymbol.IsReadOnly || fieldSymbol.IsConst || fieldSymbol.IsExtern)
                 {
                     return;
                 }
 
-                if (IsSymbolVisibleOutsideSolution(fieldSymbol, _internalsVisibleToAttribute))
+                if (IsSymbolVisibleOutsideSolution(fieldSymbol, m_internalsVisibleToAttribute))
                 {
                     return;
                 }
@@ -141,7 +141,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     return;
                 }
 
-                _fields.Add(fieldSymbol);
+                m_fields.Add(fieldSymbol);
             }
 
             private static bool IsSymbolVisibleOutsideSolution(ISymbol symbol, ISymbol internalsVisibleToAttribute)
@@ -222,15 +222,15 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         /// </summary>
         private sealed class WriteUsagesScanner : CSharpSyntaxWalker
         {
-            private readonly SemanticModel _semanticModel;
-            private readonly ConcurrentDictionary<IFieldSymbol, bool> _writableFields;
+            private readonly SemanticModel m_semanticModel;
+            private readonly ConcurrentDictionary<IFieldSymbol, bool> m_writableFields;
 
             private WriteUsagesScanner(
                 SemanticModel semanticModel,
                 ConcurrentDictionary<IFieldSymbol, bool> writableFields)
             {
-                _semanticModel = semanticModel;
-                _writableFields = writableFields;
+                m_semanticModel = semanticModel;
+                m_writableFields = writableFields;
             }
 
             public override void VisitArgument(ArgumentSyntax node)
@@ -293,7 +293,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 if (node.Expression.IsKind(SyntaxKind.SimpleMemberAccessExpression))
                 {
                     var memberAccess = (MemberAccessExpressionSyntax)node.Expression;
-                    ISymbol symbol = _semanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
+                    ISymbol symbol = m_semanticModel.GetSymbolInfo(memberAccess.Expression).Symbol;
                     if (symbol != null && symbol.Kind == SymbolKind.Field)
                     {
                         var fieldSymbol = (IFieldSymbol)symbol;
@@ -323,7 +323,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             {
                 foreach (ParameterSyntax parameter in parameters)
                 {
-                    ITypeSymbol parameterType = _semanticModel.GetTypeInfo(parameter.Type).Type;
+                    ITypeSymbol parameterType = m_semanticModel.GetTypeInfo(parameter.Type).Type;
                     if (parameterType == null)
                     {
                         continue;
@@ -351,7 +351,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             private void CheckForFieldWrite(ExpressionSyntax node)
             {
-                var fieldSymbol = _semanticModel.GetSymbolInfo(node).Symbol as IFieldSymbol;
+                var fieldSymbol = m_semanticModel.GetSymbolInfo(node).Symbol as IFieldSymbol;
 
                 if (fieldSymbol != null)
                 {
@@ -380,7 +380,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     {
                         case SyntaxKind.ConstructorDeclaration:
                             {
-                                return _semanticModel.GetDeclaredSymbol(node).IsStatic == isStatic &&
+                                return m_semanticModel.GetDeclaredSymbol(node).IsStatic == isStatic &&
                                     IsInType(node.Parent, type);
                             }
                         case SyntaxKind.ParenthesizedLambdaExpression:
@@ -400,7 +400,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 {
                     if (node.IsKind(SyntaxKind.ClassDeclaration) || node.IsKind(SyntaxKind.StructDeclaration))
                     {
-                        return Equals(containingType, _semanticModel.GetDeclaredSymbol(node));
+                        return Equals(containingType, m_semanticModel.GetDeclaredSymbol(node));
                     }
 
                     node = node.Parent;
@@ -411,7 +411,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             private void MarkWriteInstance(IFieldSymbol fieldSymbol)
             {
                 bool ignored;
-                _writableFields.TryRemove(fieldSymbol, out ignored);
+                m_writableFields.TryRemove(fieldSymbol, out ignored);
             }
 
             public static async Task RemoveWrittenFields(
@@ -434,20 +434,20 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         /// </summary>
         private sealed class ReadonlyRewriter : CSharpSyntaxRewriter
         {
-            private readonly SemanticModel _model;
-            private readonly ConcurrentDictionary<IFieldSymbol, bool> _unwrittenFields;
+            private readonly SemanticModel m_model;
+            private readonly ConcurrentDictionary<IFieldSymbol, bool> m_unwrittenFields;
 
             public ReadonlyRewriter(ConcurrentDictionary<IFieldSymbol, bool> unwrittenFields, SemanticModel model)
             {
-                _model = model;
-                _unwrittenFields = unwrittenFields;
+                m_model = model;
+                m_unwrittenFields = unwrittenFields;
             }
 
             public override SyntaxNode VisitFieldDeclaration(FieldDeclarationSyntax node)
             {
-                var fieldSymbol = (IFieldSymbol)_model.GetDeclaredSymbol(node.Declaration.Variables[0]);
+                var fieldSymbol = (IFieldSymbol)m_model.GetDeclaredSymbol(node.Declaration.Variables[0]);
                 bool ignored;
-                if (_unwrittenFields.TryRemove(fieldSymbol, out ignored))
+                if (m_unwrittenFields.TryRemove(fieldSymbol, out ignored))
                 {
                     return
                         node.WithModifiers(

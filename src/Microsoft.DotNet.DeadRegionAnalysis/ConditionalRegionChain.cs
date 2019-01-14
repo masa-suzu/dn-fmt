@@ -10,15 +10,15 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
 {
     public struct ConditionalRegionChain : IComparable<ConditionalRegionChain>
     {
-        private ImmutableArray<ConditionalRegion> _regions;
+        private ImmutableArray<ConditionalRegion> m_regions;
 
-        public bool IsDefault { get { return _regions == null; } }
+        public bool IsDefault { get { return m_regions == null; } }
 
-        public ImmutableArray<ConditionalRegion> Regions { get { return _regions; } }
+        public ImmutableArray<ConditionalRegion> Regions { get { return m_regions; } }
 
-        public int SpanStart { get { return _regions != null ? _regions[0].SpanStart : -1; } }
+        public int SpanStart { get { return m_regions != null ? m_regions[0].SpanStart : -1; } }
 
-        public int SpanEnd { get { return _regions != null ? _regions[_regions.Length - 1].SpanEnd : -1; } }
+        public int SpanEnd { get { return m_regions != null ? m_regions[m_regions.Length - 1].SpanEnd : -1; } }
 
         internal ConditionalRegionChain(ImmutableArray<ConditionalRegion> regions)
         {
@@ -27,7 +27,7 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
                 throw new ArgumentException("regions");
             }
 
-            _regions = regions;
+            m_regions = regions;
         }
 
         public int CompareTo(ConditionalRegionChain other)

@@ -23,20 +23,20 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         private sealed class ExplicitThisRewriter : CSharpSyntaxRewriter
         {
-            private readonly Document _document;
-            private readonly CancellationToken _cancellationToken;
-            private SemanticModel _semanticModel;
-            private bool _addedAnnotations;
+            private readonly Document m_document;
+            private readonly CancellationToken m_cancellationToken;
+            private SemanticModel m_semanticModel;
+            private bool m_addedAnnotations;
 
             internal bool AddedAnnotations
             {
-                get { return _addedAnnotations; }
+                get { return m_addedAnnotations; }
             }
 
             internal ExplicitThisRewriter(Document document, CancellationToken cancellationToken)
             {
-                _document = document;
-                _cancellationToken = cancellationToken;
+                m_document = document;
+                m_cancellationToken = cancellationToken;
             }
 
             public override SyntaxNode VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
@@ -47,7 +47,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     node.Expression.Kind() == SyntaxKind.ThisExpression &&
                     IsPrivateField(node))
                 {
-                    _addedAnnotations = true;
+                    m_addedAnnotations = true;
                     return node.WithAdditionalAnnotations(Simplifier.Annotation);
                 }
 
@@ -56,12 +56,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             private bool IsPrivateField(MemberAccessExpressionSyntax memberSyntax)
             {
-                if (_semanticModel == null)
+                if (m_semanticModel == null)
                 {
-                    _semanticModel = _document.GetSemanticModelAsync(_cancellationToken).Result;
+                    m_semanticModel = m_document.GetSemanticModelAsync(m_cancellationToken).Result;
                 }
 
-                var symbolInfo = _semanticModel.GetSymbolInfo(memberSyntax, _cancellationToken);
+                var symbolInfo = m_semanticModel.GetSymbolInfo(memberSyntax, m_cancellationToken);
                 if (symbolInfo.Symbol != null && symbolInfo.Symbol.Kind == SymbolKind.Field)
                 {
                     var field = (IFieldSymbol)symbolInfo.Symbol;

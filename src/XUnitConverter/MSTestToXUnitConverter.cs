@@ -332,44 +332,44 @@ namespace XUnitConverter
 
         private class TransformationTracker
         {
-            private Dictionary<SyntaxAnnotation, Func<CompilationUnitSyntax, IEnumerable<SyntaxNode>, Dictionary<SyntaxNode, SyntaxNode>, CompilationUnitSyntax>> _annotationToTransformation = new Dictionary<SyntaxAnnotation, Func<CompilationUnitSyntax, IEnumerable<SyntaxNode>, Dictionary<SyntaxNode, SyntaxNode>, CompilationUnitSyntax>>();
-            private Dictionary<SyntaxNode, List<SyntaxAnnotation>> _nodeToAnnotations = new Dictionary<SyntaxNode, List<SyntaxAnnotation>>();
-            private Dictionary<SyntaxAnnotation, SyntaxNode> _originalNodeLookup = new Dictionary<SyntaxAnnotation, SyntaxNode>();
+            private Dictionary<SyntaxAnnotation, Func<CompilationUnitSyntax, IEnumerable<SyntaxNode>, Dictionary<SyntaxNode, SyntaxNode>, CompilationUnitSyntax>> m_annotationToTransformation = new Dictionary<SyntaxAnnotation, Func<CompilationUnitSyntax, IEnumerable<SyntaxNode>, Dictionary<SyntaxNode, SyntaxNode>, CompilationUnitSyntax>>();
+            private Dictionary<SyntaxNode, List<SyntaxAnnotation>> m_nodeToAnnotations = new Dictionary<SyntaxNode, List<SyntaxAnnotation>>();
+            private Dictionary<SyntaxAnnotation, SyntaxNode> m_originalNodeLookup = new Dictionary<SyntaxAnnotation, SyntaxNode>();
 
             public void AddTransformation(IEnumerable<SyntaxNode> nodesToTransform, Func<CompilationUnitSyntax, IEnumerable<SyntaxNode>, Dictionary<SyntaxNode, SyntaxNode>, CompilationUnitSyntax> transformerFunc)
             {
                 var annotation = new SyntaxAnnotation();
-                _annotationToTransformation[annotation] = transformerFunc;
+                m_annotationToTransformation[annotation] = transformerFunc;
 
                 foreach (var node in nodesToTransform)
                 {
                     List<SyntaxAnnotation> annotationsForNode;
-                    if (!_nodeToAnnotations.TryGetValue(node, out annotationsForNode))
+                    if (!m_nodeToAnnotations.TryGetValue(node, out annotationsForNode))
                     {
                         annotationsForNode = new List<SyntaxAnnotation>();
-                        _nodeToAnnotations[node] = annotationsForNode;
+                        m_nodeToAnnotations[node] = annotationsForNode;
                     }
                     annotationsForNode.Add(annotation);
 
                     var originalNodeAnnotation = new SyntaxAnnotation();
-                    _originalNodeLookup[originalNodeAnnotation] = node;
+                    m_originalNodeLookup[originalNodeAnnotation] = node;
                     annotationsForNode.Add(originalNodeAnnotation);
                 }
             }
 
             public CompilationUnitSyntax TransformRoot(CompilationUnitSyntax root)
             {
-                root = root.ReplaceNodes(_nodeToAnnotations.Keys, (originalNode, rewrittenNode) =>
+                root = root.ReplaceNodes(m_nodeToAnnotations.Keys, (originalNode, rewrittenNode) =>
                 {
-                    var ret = rewrittenNode.WithAdditionalAnnotations(_nodeToAnnotations[originalNode]);
+                    var ret = rewrittenNode.WithAdditionalAnnotations(m_nodeToAnnotations[originalNode]);
 
                     return ret;
                 });
 
-                foreach (var kvp in _annotationToTransformation)
+                foreach (var kvp in m_annotationToTransformation)
                 {
                     Dictionary<SyntaxNode, SyntaxNode> originalNodeMap = new Dictionary<SyntaxNode, SyntaxNode>();
-                    foreach (var originalNodeKvp in _originalNodeLookup)
+                    foreach (var originalNodeKvp in m_originalNodeLookup)
                     {
                         var annotatedNodes = root.GetAnnotatedNodes(originalNodeKvp.Key).ToList();
                         SyntaxNode annotatedNode = annotatedNodes.SingleOrDefault();

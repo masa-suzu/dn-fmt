@@ -10,23 +10,23 @@ namespace DeadRegions
     {
         private static readonly char[] s_symbolSeparatorChars = new[] { ';', ',' };
 
-        private OptionParser _parser;
-        private List<string> _ignoredSymbols;
-        private List<string> _definedSymbols;
-        private List<string> _disabledSymbols;
-        private List<IEnumerable<string>> _symbolConfigurations;
+        private OptionParser m_parser;
+        private List<string> m_ignoredSymbols;
+        private List<string> m_definedSymbols;
+        private List<string> m_disabledSymbols;
+        private List<IEnumerable<string>> m_symbolConfigurations;
 
-        public string Usage { get { return _parser.Usage; } }
+        public string Usage { get { return m_parser.Usage; } }
 
         public ImmutableArray<string> FilePaths { get; private set; }
 
-        public IEnumerable<string> IgnoredSymbols { get { return _ignoredSymbols; } }
+        public IEnumerable<string> IgnoredSymbols { get { return m_ignoredSymbols; } }
 
-        public IEnumerable<string> DefinedSymbols { get { return _definedSymbols; } }
+        public IEnumerable<string> DefinedSymbols { get { return m_definedSymbols; } }
 
-        public IEnumerable<string> DisabledSymbols { get { return _disabledSymbols; } }
+        public IEnumerable<string> DisabledSymbols { get { return m_disabledSymbols; } }
 
-        public IEnumerable<IEnumerable<string>> SymbolConfigurations { get { return _symbolConfigurations; } }
+        public IEnumerable<IEnumerable<string>> SymbolConfigurations { get { return m_symbolConfigurations; } }
 
         public Tristate UndefinedSymbolValue { get; private set; }
 
@@ -42,68 +42,68 @@ namespace DeadRegions
 
         public Options()
         {
-            _parser = new OptionParser();
+            m_parser = new OptionParser();
 
-            _parser.Add(
+            m_parser.Add(
                 "config",
-                arg => _symbolConfigurations.Add(ParseSymbolList(arg)),
+                arg => m_symbolConfigurations.Add(ParseSymbolList(arg)),
                 parameterUsage: "<symbol list>",
                 description: "Specify a complete symbol configuration",
                 allowMultiple: true);
 
-            _parser.Add(
+            m_parser.Add(
                 "ignore",
-                arg => _ignoredSymbols.AddRange(ParseSymbolList(arg)),
+                arg => m_ignoredSymbols.AddRange(ParseSymbolList(arg)),
                 parameterUsage: "<symbol list>",
                 description: "Ignore a list of symbols (treat as varying)",
                 allowMultiple: true);
 
-            _parser.Add(
+            m_parser.Add(
                 "define",
-                arg => _definedSymbols.AddRange(ParseSymbolList(arg)),
+                arg => m_definedSymbols.AddRange(ParseSymbolList(arg)),
                 parameterUsage: "<symbol list>",
                 description: "Define a list of symbols (treat as always true)",
                 allowMultiple: true);
 
-            _parser.Add(
+            m_parser.Add(
                 "disable",
-                arg => _disabledSymbols.AddRange(ParseSymbolList(arg)),
+                arg => m_disabledSymbols.AddRange(ParseSymbolList(arg)),
                 parameterUsage: "<symbol list>",
                 description: "Disable a list of symbols (treat as always disabled)",
                 allowMultiple: true);
 
-            _parser.Add(
+            m_parser.Add(
                 "default",
                 arg => UndefinedSymbolValue = Tristate.Parse(arg),
                 parameterUsage: "<false|true|varying>",
                 description: "Set the default value for symbols which do not have a specified value (defaults to varying)");
 
-            _parser.Add(
+            m_parser.Add(
                 "printdisabled",
                 () => PrintDisabled = true,
                 description: "Print the list of always disabled conditional regions");
 
-            _parser.Add(
+            m_parser.Add(
                 "printenabled",
                 () => PrintEnabled = true,
                 description: "Print the list of always enabled conditional regions");
 
-            _parser.Add(
+            m_parser.Add(
                 "printvarying",
                 () => PrintVarying = true,
                 description: "Print the list of varying conditional regions");
 
-            _parser.Add(
+            m_parser.Add(
                 "printsymbols",
                 () => PrintSymbolInfo = true,
                 description: "Print the lists of uniquely specified preprocessor symbols, symbols visited during analysis, and symbols not encountered during analysis");
 
-            _parser.Add(
+            m_parser.Add(
                 "print",
                 () => PrintDisabled = PrintEnabled = PrintVarying = PrintSymbolInfo = true,
                 description: "Print the entire list of conditional regions and the lists of preprocessor symbols (combination of printenabled, printdisabled, printvarying, and printsymbols)");
 
-            _parser.Add(
+            m_parser.Add(
                 "edit",
                 () => Edit = true,
                 "Perform edits to remove always enabled and always disabled conditional regions from source files, and simplify preprocessor expressions which evaluate to 'varying'");
@@ -113,12 +113,12 @@ namespace DeadRegions
         {
             try
             {
-                _ignoredSymbols = new List<string>();
-                _definedSymbols = new List<string>();
-                _disabledSymbols = new List<string>();
-                _symbolConfigurations = new List<IEnumerable<string>>();
+                m_ignoredSymbols = new List<string>();
+                m_definedSymbols = new List<string>();
+                m_disabledSymbols = new List<string>();
+                m_symbolConfigurations = new List<IEnumerable<string>>();
                 UndefinedSymbolValue = Tristate.Varying;
-                FilePaths = _parser.Parse(Environment.CommandLine);
+                FilePaths = m_parser.Parse(Environment.CommandLine);
             }
             catch (OptionParseException e)
             {

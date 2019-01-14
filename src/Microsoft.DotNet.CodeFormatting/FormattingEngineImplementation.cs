@@ -28,50 +28,50 @@ namespace Microsoft.DotNet.CodeFormatting
         /// </summary>
         internal const string TablePreprocessorSymbolName = "DOTNET_FORMATTER";
 
-        private readonly Options _options;
-        private readonly IEnumerable<IFormattingFilter> _filters;
-        private readonly IEnumerable<Lazy<ISyntaxFormattingRule, IRuleMetadata>> _syntaxRules;
-        private readonly IEnumerable<Lazy<ILocalSemanticFormattingRule, IRuleMetadata>> _localSemanticRules;
-        private readonly IEnumerable<Lazy<IGlobalSemanticFormattingRule, IRuleMetadata>> _globalSemanticRules;
-        private readonly Stopwatch _watch = new Stopwatch();
-        private readonly Dictionary<string, bool> _ruleMap = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-        private bool _allowTables;
-        private bool _verbose;
+        private readonly Options m_options;
+        private readonly IEnumerable<IFormattingFilter> m_filters;
+        private readonly IEnumerable<Lazy<ISyntaxFormattingRule, IRuleMetadata>> m_syntaxRules;
+        private readonly IEnumerable<Lazy<ILocalSemanticFormattingRule, IRuleMetadata>> m_localSemanticRules;
+        private readonly IEnumerable<Lazy<IGlobalSemanticFormattingRule, IRuleMetadata>> m_globalSemanticRules;
+        private readonly Stopwatch m_watch = new Stopwatch();
+        private readonly Dictionary<string, bool> m_ruleMap = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        private bool m_allowTables;
+        private bool m_verbose;
 
         public ImmutableArray<string> CopyrightHeader
         {
-            get { return _options.CopyrightHeader; }
-            set { _options.CopyrightHeader = value; }
+            get { return m_options.CopyrightHeader; }
+            set { m_options.CopyrightHeader = value; }
         }
 
         public ImmutableArray<string[]> PreprocessorConfigurations
         {
-            get { return _options.PreprocessorConfigurations; }
-            set { _options.PreprocessorConfigurations = value; }
+            get { return m_options.PreprocessorConfigurations; }
+            set { m_options.PreprocessorConfigurations = value; }
         }
 
         public ImmutableArray<string> FileNames
         {
-            get { return _options.FileNames; }
-            set { _options.FileNames = value; }
+            get { return m_options.FileNames; }
+            set { m_options.FileNames = value; }
         }
 
         public IFormatLogger FormatLogger
         {
-            get { return _options.FormatLogger; }
-            set { _options.FormatLogger = value; }
+            get { return m_options.FormatLogger; }
+            set { m_options.FormatLogger = value; }
         }
 
         public bool AllowTables
         {
-            get { return _allowTables; }
-            set { _allowTables = value; }
+            get { return m_allowTables; }
+            set { m_allowTables = value; }
         }
 
         public bool Verbose
         {
-            get { return _verbose; }
-            set { _verbose = value; }
+            get { return m_verbose; }
+            set { m_verbose = value; }
         }
 
         public ImmutableArray<IRuleMetadata> AllRules
@@ -79,9 +79,9 @@ namespace Microsoft.DotNet.CodeFormatting
             get
             {
                 var list = new List<IRuleMetadata>();
-                list.AddRange(_syntaxRules.Select(x => x.Metadata));
-                list.AddRange(_localSemanticRules.Select(x => x.Metadata));
-                list.AddRange(_globalSemanticRules.Select(x => x.Metadata));
+                list.AddRange(m_syntaxRules.Select(x => x.Metadata));
+                list.AddRange(m_localSemanticRules.Select(x => x.Metadata));
+                list.AddRange(m_globalSemanticRules.Select(x => x.Metadata));
                 return list.ToImmutableArray();
             }
         }
@@ -94,15 +94,15 @@ namespace Microsoft.DotNet.CodeFormatting
             [ImportMany] IEnumerable<Lazy<ILocalSemanticFormattingRule, IRuleMetadata>> localSemanticRules,
             [ImportMany] IEnumerable<Lazy<IGlobalSemanticFormattingRule, IRuleMetadata>> globalSemanticRules)
         {
-            _options = options;
-            _filters = filters;
-            _syntaxRules = syntaxRules;
-            _localSemanticRules = localSemanticRules;
-            _globalSemanticRules = globalSemanticRules;
+            m_options = options;
+            m_filters = filters;
+            m_syntaxRules = syntaxRules;
+            m_localSemanticRules = localSemanticRules;
+            m_globalSemanticRules = globalSemanticRules;
 
             foreach (var rule in AllRules)
             {
-                _ruleMap[rule.Name] = rule.DefaultRule;
+                m_ruleMap[rule.Name] = rule.DefaultRule;
             }
         }
 
@@ -111,7 +111,7 @@ namespace Microsoft.DotNet.CodeFormatting
         {
             return rules
                 .OrderBy(r => r.Metadata.Order)
-                .Where(r => _ruleMap[r.Metadata.Name])
+                .Where(r => m_ruleMap[r.Metadata.Name])
                 .Select(r => r.Value)
                 .ToList();
         }
@@ -129,7 +129,7 @@ namespace Microsoft.DotNet.CodeFormatting
 
         public void ToggleRuleEnabled(IRuleMetadata ruleMetaData, bool enabled)
         {
-            _ruleMap[ruleMetaData.Name] = enabled;
+            m_ruleMap[ruleMetaData.Name] = enabled;
         }
 
         private async Task FormatAsync(Workspace workspace, IReadOnlyList<DocumentId> documentIds, CancellationToken cancellationToken)
@@ -191,7 +191,7 @@ namespace Microsoft.DotNet.CodeFormatting
         {
             var solution = originalSolution;
 
-            if (_allowTables)
+            if (m_allowTables)
             {
                 solution = AddTablePreprocessorSymbol(originalSolution);
             }
@@ -200,7 +200,7 @@ namespace Microsoft.DotNet.CodeFormatting
             solution = await RunLocalSemanticPass(solution, documentIds, cancellationToken);
             solution = await RunGlobalSemanticPass(solution, documentIds, cancellationToken);
 
-            if (_allowTables)
+            if (m_allowTables)
             {
                 solution = RemoveTablePreprocessorSymbol(solution, originalSolution);
             }
@@ -210,7 +210,7 @@ namespace Microsoft.DotNet.CodeFormatting
 
         private bool ShouldBeProcessed(Document document)
         {
-            foreach (var filter in _filters)
+            foreach (var filter in m_filters)
             {
                 var shouldBeProcessed = filter.ShouldBeProcessed(document);
                 if (!shouldBeProcessed)
@@ -242,15 +242,15 @@ namespace Microsoft.DotNet.CodeFormatting
 
         private void StartDocument()
         {
-            _watch.Restart();
+            m_watch.Restart();
         }
 
         private void EndDocument(Document document)
         {
-            _watch.Stop();
-            if (_verbose)
+            m_watch.Stop();
+            if (m_verbose)
             {
-                FormatLogger.WriteLine("    {0} {1} seconds", document.Name, _watch.Elapsed.TotalSeconds);
+                FormatLogger.WriteLine("    {0} {1} seconds", document.Name, m_watch.Elapsed.TotalSeconds);
             }
         }
 
@@ -289,7 +289,7 @@ namespace Microsoft.DotNet.CodeFormatting
 
         private SyntaxNode RunSyntaxPass(SyntaxNode root, string languageName)
         {
-            foreach (var rule in GetOrderedRules(_syntaxRules))
+            foreach (var rule in GetOrderedRules(m_syntaxRules))
             {
                 if (rule.SupportsLanguage(languageName))
                 {
@@ -303,7 +303,7 @@ namespace Microsoft.DotNet.CodeFormatting
         private async Task<Solution> RunLocalSemanticPass(Solution solution, IReadOnlyList<DocumentId> documentIds, CancellationToken cancellationToken)
         {
             FormatLogger.WriteLine("\tLocal Semantic Pass");
-            foreach (var localSemanticRule in GetOrderedRules(_localSemanticRules))
+            foreach (var localSemanticRule in GetOrderedRules(m_localSemanticRules))
             {
                 solution = await RunLocalSemanticPass(solution, documentIds, localSemanticRule, cancellationToken);
             }
@@ -313,7 +313,7 @@ namespace Microsoft.DotNet.CodeFormatting
 
         private async Task<Solution> RunLocalSemanticPass(Solution originalSolution, IReadOnlyList<DocumentId> documentIds, ILocalSemanticFormattingRule localSemanticRule, CancellationToken cancellationToken)
         {
-            if (_verbose)
+            if (m_verbose)
             {
                 FormatLogger.WriteLine("  {0}", localSemanticRule.GetType().Name);
             }
@@ -344,7 +344,7 @@ namespace Microsoft.DotNet.CodeFormatting
         private async Task<Solution> RunGlobalSemanticPass(Solution solution, IReadOnlyList<DocumentId> documentIds, CancellationToken cancellationToken)
         {
             FormatLogger.WriteLine("\tGlobal Semantic Pass");
-            foreach (var globalSemanticRule in GetOrderedRules(_globalSemanticRules))
+            foreach (var globalSemanticRule in GetOrderedRules(m_globalSemanticRules))
             {
                 solution = await RunGlobalSemanticPass(solution, documentIds, globalSemanticRule, cancellationToken);
             }
@@ -354,7 +354,7 @@ namespace Microsoft.DotNet.CodeFormatting
 
         private async Task<Solution> RunGlobalSemanticPass(Solution solution, IReadOnlyList<DocumentId> documentIds, IGlobalSemanticFormattingRule globalSemanticRule, CancellationToken cancellationToken)
         {
-            if (_verbose)
+            if (m_verbose)
             {
                 FormatLogger.WriteLine("  {0}", globalSemanticRule.GetType().Name);
             }

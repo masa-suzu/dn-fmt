@@ -9,7 +9,7 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
 {
     public struct Tristate
     {
-        private byte _value;
+        private byte m_value;
 
         public static Tristate False = new Tristate(0);
         public static readonly Tristate True = new Tristate(1);
@@ -17,7 +17,7 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
 
         private Tristate(byte value)
         {
-            _value = value;
+            m_value = value;
         }
 
         public static Tristate operator !(Tristate state)
@@ -28,18 +28,18 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
             }
             else
             {
-                return new Tristate((byte)(state._value ^ 1));
+                return new Tristate((byte)(state.m_value ^ 1));
             }
         }
 
         public static bool operator ==(Tristate x, Tristate y)
         {
-            return x._value == y._value;
+            return x.m_value == y.m_value;
         }
 
         public static bool operator !=(Tristate x, Tristate y)
         {
-            return x._value != y._value;
+            return x.m_value != y.m_value;
         }
 
         public static Tristate operator &(Tristate x, Tristate y)
@@ -87,12 +87,12 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
 
         public override int GetHashCode()
         {
-            return _value.GetHashCode();
+            return m_value.GetHashCode();
         }
 
         public override string ToString()
         {
-            switch (_value)
+            switch (m_value)
             {
                 case 0:
                     return "false";

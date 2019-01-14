@@ -19,15 +19,15 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
     {
         private sealed class VisualBasicVisibilityRewriter : VisualBasicSyntaxRewriter
         {
-            private readonly Document _document;
-            private readonly CancellationToken _cancellationToken;
-            private SemanticModel _semanticModel;
-            private bool _inModule;
+            private readonly Document m_document;
+            private readonly CancellationToken m_cancellationToken;
+            private SemanticModel m_semanticModel;
+            private bool m_inModule;
 
             internal VisualBasicVisibilityRewriter(Document document, CancellationToken cancellationToken)
             {
-                _document = document;
-                _cancellationToken = cancellationToken;
+                m_document = document;
+                m_cancellationToken = cancellationToken;
             }
 
             public override SyntaxNode VisitClassBlock(ClassBlockSyntax originalNode)
@@ -71,15 +71,15 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             public override SyntaxNode VisitModuleBlock(ModuleBlockSyntax node)
             {
-                var savedInModule = _inModule;
+                var savedInModule = m_inModule;
                 try
                 {
-                    _inModule = true;
+                    m_inModule = true;
                     node = (ModuleBlockSyntax)base.VisitModuleBlock(node);
                 }
                 finally
                 {
-                    _inModule = savedInModule;
+                    m_inModule = savedInModule;
                 }
 
                 var begin = (ModuleStatementSyntax)EnsureVisibility(
@@ -122,7 +122,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             public override SyntaxNode VisitSubNewStatement(SubNewStatementSyntax node)
             {
-                if (node.Modifiers.Any(x => x.IsKind(SyntaxKind.SharedKeyword)) || _inModule)
+                if (node.Modifiers.Any(x => x.IsKind(SyntaxKind.SharedKeyword)) || m_inModule)
                 {
                     return node;
                 }
@@ -202,12 +202,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 // Getting the SemanticModel is a relatively expensive operation.  Can take a few seconds in 
                 // projects of significant size.  It is delay created to avoid this in files which already
                 // conform to the standards.
-                if (_semanticModel == null)
+                if (m_semanticModel == null)
                 {
-                    _semanticModel = _document.GetSemanticModelAsync(_cancellationToken).Result;
+                    m_semanticModel = m_document.GetSemanticModelAsync(m_cancellationToken).Result;
                 }
 
-                var symbol = _semanticModel.GetDeclaredSymbol(originalTypeBlockSyntax, _cancellationToken);
+                var symbol = m_semanticModel.GetDeclaredSymbol(originalTypeBlockSyntax, m_cancellationToken);
                 if (symbol == null)
                 {
                     return null;

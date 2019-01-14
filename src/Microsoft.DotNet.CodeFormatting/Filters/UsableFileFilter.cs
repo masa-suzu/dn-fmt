@@ -16,12 +16,12 @@ namespace Microsoft.DotNet.CodeFormatting.Filters
     [Export(typeof(IFormattingFilter))]
     internal sealed class UsableFileFilter : IFormattingFilter
     {
-        private readonly Options _options;
+        private readonly Options m_options;
 
         [ImportingConstructor]
         internal UsableFileFilter(Options options)
         {
-            _options = options;
+            m_options = options;
         }
 
         public bool ShouldBeProcessed(Document document)
@@ -34,7 +34,7 @@ namespace Microsoft.DotNet.CodeFormatting.Filters
             var fileInfo = new FileInfo(document.FilePath);
             if (!fileInfo.Exists || fileInfo.IsReadOnly)
             {
-                _options.FormatLogger.WriteLine("warning: skipping document '{0}' because it {1}.",
+                m_options.FormatLogger.WriteLine("warning: skipping document '{0}' because it {1}.",
                     document.FilePath,
                     fileInfo.IsReadOnly ? "is read-only" : "does not exist");
                 return false;

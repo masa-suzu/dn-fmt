@@ -19,14 +19,14 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
     {
         private sealed class CSharpVisibilityRewriter : CSharpSyntaxRewriter
         {
-            private readonly Document _document;
-            private readonly CancellationToken _cancellationToken;
-            private SemanticModel _semanticModel;
+            private readonly Document m_document;
+            private readonly CancellationToken m_cancellationToken;
+            private SemanticModel m_semanticModel;
 
             internal CSharpVisibilityRewriter(Document document, CancellationToken cancellationToken)
             {
-                _document = document;
-                _cancellationToken = cancellationToken;
+                m_document = document;
+                m_cancellationToken = cancellationToken;
             }
 
             public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax originalNode)
@@ -179,12 +179,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                 // Getting the SemanticModel is a relatively expensive operation.  Can take a few seconds in 
                 // projects of significant size.  It is delay created to avoid this in files which already
                 // conform to the standards.
-                if (_semanticModel == null)
+                if (m_semanticModel == null)
                 {
-                    _semanticModel = _document.GetSemanticModelAsync(_cancellationToken).Result;
+                    m_semanticModel = m_document.GetSemanticModelAsync(m_cancellationToken).Result;
                 }
 
-                var symbol = _semanticModel.GetDeclaredSymbol(originalDeclarationSyntax, _cancellationToken);
+                var symbol = m_semanticModel.GetDeclaredSymbol(originalDeclarationSyntax, m_cancellationToken);
                 if (symbol == null)
                 {
                     return null;

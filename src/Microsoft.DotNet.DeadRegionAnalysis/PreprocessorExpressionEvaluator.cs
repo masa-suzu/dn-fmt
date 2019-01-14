@@ -12,20 +12,20 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
 {
     internal class PreprocessorExpressionEvaluator : CSharpSyntaxVisitor<Tristate>
     {
-        private IReadOnlyDictionary<string, Tristate> _symbolStates;
-        private Tristate _undefinedSymbolValue;
+        private IReadOnlyDictionary<string, Tristate> m_symbolStates;
+        private Tristate m_undefinedSymbolValue;
 
         public PreprocessorExpressionEvaluator(IReadOnlyDictionary<string, Tristate> symbolStates, Tristate undefinedSymbolValue)
         {
             Debug.Assert(symbolStates != null);
-            _symbolStates = symbolStates;
-            _undefinedSymbolValue = undefinedSymbolValue;
+            m_symbolStates = symbolStates;
+            m_undefinedSymbolValue = undefinedSymbolValue;
         }
 
         public override Tristate VisitLiteralExpression(LiteralExpressionSyntax node)
         {
             Tristate state;
-            if (_symbolStates.TryGetValue(node.ToString(), out state))
+            if (m_symbolStates.TryGetValue(node.ToString(), out state))
             {
                 return state;
             }
@@ -44,13 +44,13 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
         public override Tristate VisitIdentifierName(IdentifierNameSyntax node)
         {
             Tristate state;
-            if (_symbolStates.TryGetValue(node.ToString(), out state))
+            if (m_symbolStates.TryGetValue(node.ToString(), out state))
             {
                 return state;
             }
             else
             {
-                return _undefinedSymbolValue;
+                return m_undefinedSymbolValue;
             }
         }
 
@@ -95,7 +95,7 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
 
     internal class CompositePreprocessorExpressionEvaluator
     {
-        private IEnumerable<PreprocessorExpressionEvaluator> _expressionEvaluators;
+        private IEnumerable<PreprocessorExpressionEvaluator> m_expressionEvaluators;
 
         public CompositePreprocessorExpressionEvaluator(IEnumerable<PreprocessorExpressionEvaluator> expressionEvaluators)
         {
@@ -104,13 +104,13 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
                 throw new ArgumentNullException("expressionEvaluators");
             }
 
-            _expressionEvaluators = expressionEvaluators;
+            m_expressionEvaluators = expressionEvaluators;
         }
 
 
         public Tristate EvaluateExpression(CSharpSyntaxNode expression)
         {
-            var it = _expressionEvaluators.GetEnumerator();
+            var it = m_expressionEvaluators.GetEnumerator();
             if (!it.MoveNext())
             {
                 Debug.Assert(false, "We should have at least one expression evaluator");

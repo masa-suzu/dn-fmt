@@ -26,12 +26,12 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         private static string StartMarker { get; set; }
         private static string EndMarker { get; set; }
 
-        private readonly Options _options;
+        private readonly Options m_options;
 
         [ImportingConstructor]
         internal HasNoCustomCopyrightHeaderFormattingRule(Options options)
         {
-            _options = options;
+            m_options = options;
         }
 
         public SyntaxNode Process(SyntaxNode syntaxNode, string languageName)
@@ -130,14 +130,14 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
             if (!File.Exists(filePath))
             {
-                _options.FormatLogger.WriteErrorLine("The specified CopyrightHeader.md file was not found.");
+                m_options.FormatLogger.WriteErrorLine("The specified CopyrightHeader.md file was not found.");
                 return false;
             }
 
             var lines = File.ReadAllLines(filePath).Where(l => !l.StartsWith("##") && !l.Equals("")).ToArray();
             if (lines.Count() != 3)
             {
-                _options.FormatLogger.WriteErrorLine("There should be exactly 3 lines in CopyrightHeader.md.");
+                m_options.FormatLogger.WriteErrorLine("There should be exactly 3 lines in CopyrightHeader.md.");
                 return false;
             }
 

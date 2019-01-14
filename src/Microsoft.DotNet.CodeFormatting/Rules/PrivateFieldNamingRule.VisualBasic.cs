@@ -36,28 +36,28 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
 
         private sealed class VisualBasicPrivateFieldAnnotationRewriter : VisualBasicSyntaxRewriter
         {
-            private int _count;
-            private bool _inModule;
+            private int m_count;
+            private bool m_inModule;
 
             internal static SyntaxNode AddAnnotations(SyntaxNode node, out int count)
             {
                 var rewriter = new VisualBasicPrivateFieldAnnotationRewriter();
                 var newNode = rewriter.Visit(node);
-                count = rewriter._count;
+                count = rewriter.m_count;
                 return newNode;
             }
 
             public override SyntaxNode VisitModuleBlock(ModuleBlockSyntax node)
             {
-                var savedInModule = _inModule;
+                var savedInModule = m_inModule;
                 try
                 {
-                    _inModule = true;
+                    m_inModule = true;
                     return base.VisitModuleBlock(node);
                 }
                 finally
                 {
-                    _inModule = savedInModule;
+                    m_inModule = savedInModule;
                 }
             }
 
@@ -79,7 +79,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                         if (!IsGoodPrivateFieldName(v.Identifier.ValueText, isInstance))
                         {
                             local = local.WithAdditionalAnnotations(s_markerAnnotationArray);
-                            _count++;
+                            m_count++;
                         }
 
                         list.Add(local);
@@ -115,7 +115,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
             private bool IsPrivateField(FieldDeclarationSyntax node, out bool isInstance)
             {
                 var isPrivate = true;
-                isInstance = !_inModule;
+                isInstance = !m_inModule;
 
                 foreach (var modifier in node.Modifiers)
                 {

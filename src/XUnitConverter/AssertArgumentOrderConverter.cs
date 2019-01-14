@@ -18,7 +18,7 @@ namespace XUnitConverter
     {
         private class Rewriter : CSharpSyntaxRewriter
         {
-            private readonly SemanticModel _model;
+            private readonly SemanticModel m_model;
 
             private static readonly HashSet<string> s_targetMethods =
                 new HashSet<string>(StringComparer.Ordinal)
@@ -41,12 +41,12 @@ namespace XUnitConverter
 
             public Rewriter(SemanticModel model)
             {
-                _model = model;
+                m_model = model;
             }
 
             public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
             {
-                var symbol = _model.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
+                var symbol = m_model.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
                 if (symbol == null || !s_targetMethods.Contains(NameHelper.GetFullName(symbol)))
                 {
                     return base.VisitInvocationExpression(node);
@@ -99,7 +99,7 @@ namespace XUnitConverter
                     case SyntaxKind.SimpleMemberAccessExpression:
                     case SyntaxKind.IdentifierName:
                         {
-                            ISymbol symbol = _model.GetSymbolInfo(expression).Symbol;
+                            ISymbol symbol = m_model.GetSymbolInfo(expression).Symbol;
 
                             if (symbol != null && symbol.Kind == SymbolKind.Field)
                             {

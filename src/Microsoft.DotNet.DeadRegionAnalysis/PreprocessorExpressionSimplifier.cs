@@ -24,17 +24,17 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
     /// </summary>
     internal class PreprocessorExpressionSimplifier : CSharpSyntaxRewriter
     {
-        private CompositePreprocessorExpressionEvaluator _expressionEvaluator;
+        private CompositePreprocessorExpressionEvaluator m_expressionEvaluator;
 
         public PreprocessorExpressionSimplifier(CompositePreprocessorExpressionEvaluator expressionEvaluator)
         {
-            _expressionEvaluator = expressionEvaluator;
+            m_expressionEvaluator = expressionEvaluator;
         }
 
         public override SyntaxNode VisitBinaryExpression(BinaryExpressionSyntax node)
         {
-            Tristate leftState = _expressionEvaluator.EvaluateExpression(node.Left);
-            Tristate rightState = _expressionEvaluator.EvaluateExpression(node.Right);
+            Tristate leftState = m_expressionEvaluator.EvaluateExpression(node.Left);
+            Tristate rightState = m_expressionEvaluator.EvaluateExpression(node.Right);
 
             var left = (ExpressionSyntax)node.Left.Accept(this);
             var right = (ExpressionSyntax)node.Right.Accept(this);

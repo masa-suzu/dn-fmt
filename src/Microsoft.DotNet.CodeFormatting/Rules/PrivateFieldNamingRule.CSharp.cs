@@ -38,13 +38,13 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         /// </summary>
         internal sealed class CSharpPrivateFieldAnnotationsRewriter : CSharpSyntaxRewriter
         {
-            private int _count;
+            private int m_count;
 
             internal static SyntaxNode AddAnnotations(SyntaxNode node, out int count)
             {
                 var rewriter = new CSharpPrivateFieldAnnotationsRewriter();
                 var newNode = rewriter.Visit(node);
-                count = rewriter._count;
+                count = rewriter.m_count;
                 return newNode;
             }
 
@@ -63,7 +63,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                         else
                         {
                             list.Add(v.WithAdditionalAnnotations(s_markerAnnotation));
-                            _count++;
+                            m_count++;
                         }
                     }
 

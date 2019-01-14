@@ -16,17 +16,17 @@ namespace Microsoft.DotNet.CodeFormatting.Filters
     [Export(typeof(IFormattingFilter))]
     internal sealed class FilenameFilter : IFormattingFilter
     {
-        private readonly Options _options;
+        private readonly Options m_options;
 
         [ImportingConstructor]
         public FilenameFilter(Options options)
         {
-            _options = options;
+            m_options = options;
         }
 
         public bool ShouldBeProcessed(Document document)
         {
-            var fileNames = _options.FileNames;
+            var fileNames = m_options.FileNames;
             if (fileNames.IsDefaultOrEmpty)
             {
                 return true;

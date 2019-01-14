@@ -10,25 +10,25 @@ namespace Microsoft.DotNet.DeadRegionAnalysis
 {
     internal class PreprocessorSymbolTracker : CSharpSyntaxVisitor
     {
-        private readonly IEnumerable<string> _specifiedSymbols;
-        private readonly HashSet<string> _unvisitedSymbols;
-        private readonly HashSet<string> _visitedSymbols;
+        private readonly IEnumerable<string> m_specifiedSymbols;
+        private readonly HashSet<string> m_unvisitedSymbols;
+        private readonly HashSet<string> m_visitedSymbols;
 
-        public IEnumerable<string> SpecifiedSymbols { get { return _specifiedSymbols; } }
-        public IEnumerable<string> UnvisitedSymbols { get { return _unvisitedSymbols; } }
-        public IEnumerable<string> VisitedSymbols { get { return _visitedSymbols; } }
+        public IEnumerable<string> SpecifiedSymbols { get { return m_specifiedSymbols; } }
+        public IEnumerable<string> UnvisitedSymbols { get { return m_unvisitedSymbols; } }
+        public IEnumerable<string> VisitedSymbols { get { return m_visitedSymbols; } }
 
         public PreprocessorSymbolTracker(IEnumerable<string> specifiedSymbols)
         {
-            _specifiedSymbols = specifiedSymbols;
-            _unvisitedSymbols = new HashSet<string>(specifiedSymbols);
-            _visitedSymbols = new HashSet<string>();
+            m_specifiedSymbols = specifiedSymbols;
+            m_unvisitedSymbols = new HashSet<string>(specifiedSymbols);
+            m_visitedSymbols = new HashSet<string>();
         }
 
         private void VisitSymbol(string symbol)
         {
-            _unvisitedSymbols.Remove(symbol);
-            _visitedSymbols.Add(symbol);
+            m_unvisitedSymbols.Remove(symbol);
+            m_visitedSymbols.Add(symbol);
         }
 
         public override void VisitLiteralExpression(LiteralExpressionSyntax node)
