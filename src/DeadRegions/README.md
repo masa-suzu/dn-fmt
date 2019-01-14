@@ -118,7 +118,7 @@ D:\example\Program.cs(8): "#if ZERO // TODO(somebody): Re-enable this when x is 
 D:\example\Program.cs(14): "#if DEBUG" : Always Disabled
 ```
 
-Voilà.
+Voilï¿½.
 
 You can also provide specific values for preprocessor expressions using `/define`, `/disable` and `/ignore`. For example,
 
@@ -173,10 +173,3 @@ where the file `hugecodebase.rsp` contains
 `/config A;B;C /config A;D;E;F;DEBUG /config EXPENSIVE_LOGGING;D;E`
 
 etc.
-
-## Contributing
-
-We follow the same contribution process that 
-[corefx is using][corefx-contributing].
-
-[corefx-contributing]: https://github.com/dotnet/corefx/wiki/Contributing
