@@ -42,7 +42,7 @@ class T
     // some trivia
     private static int s_z;
     // some trivia
-    private int _k = 1, _s = 2, _rsk_yz = 3, _y_z;
+    private int m_k = 1, m_s = 2, m_rsk_yz = 3, m_y_z;
     // some trivia
     [ThreadStatic] static int t_r;
     [ThreadStaticAttribute] static int t_r;
@@ -66,11 +66,11 @@ class C
                 var expected = @"
 class C
 {
-    private int _x;
+    private int m_x;
     private int _;
     private int __;
-    private int _field1;
-    private int _field2;
+    private int m_field1;
+    private int m_field2;
 ";
 
                 Verify(text, expected, runFormatter: false);
@@ -99,7 +99,7 @@ class C3
                 var expected = @"
 class C1
 {
-    private int _field1, _field2, _field3;
+    private int m_field1, m_field2, m_field3;
 }
 
 class C2
@@ -136,9 +136,9 @@ class C
                 var expected = @"
 class C
 {
-    int _field;
+    int m_field;
     static int s_other;
-    int _GCField;
+    int m_GCField;
     static int s_GCOther;
 }
 ";
@@ -166,12 +166,12 @@ class C
 delegate void Action();
 class C
 {
-    Action _someAction;
+    Action m_someAction;
     void M(C p)
     {
-        _someAction();
-        this._someAction();
-        p._someAction();
+        m_someAction();
+        this.m_someAction();
+        p.m_someAction();
     }
 }";
 
@@ -200,11 +200,11 @@ class C
                 var expected = @"
 class C
 {
-    int _field;
+    int m_field;
 
     int M(C p)
     {
-        int x = p._field;
+        int x = p.m_field;
         return x;
     }
 }";
@@ -224,7 +224,7 @@ class C
                 var expected = @"
 class C
 {
-    private (string name, string value) _myTuple;
+    private (string name, string value) m_myTuple;
 }
 ";
 
@@ -250,13 +250,13 @@ class C
                 var expected = @"
 class C
 {
-        private bool _streamObjects;
+        private bool m_streamObjects;
 
         /// <summary>
         /// A collection in which objects that are written using the WriteError
-        /// method are accumulated if <see cref=""_streamObjects"" /> is false.
+        /// method are accumulated if <see cref=""m_streamObjects"" /> is false.
         /// </summary>
-        private List<string> _errors;
+        private List<string> m_errors;
         
 }
 ";
@@ -277,7 +277,7 @@ End Class";
 
                 var expected = @"
 Class C 
-    Private _field As Integer
+    Private m_field As Integer
 End Class";
 
                 Verify(text, expected, runFormatter: false, languageName: LanguageNames.VisualBasic);
@@ -309,7 +309,7 @@ End Class";
 
                 var expected = @"
 Class C 
-    Private _field1,_field2 As Integer
+    Private m_field1,m_field2 As Integer
 End Class";
 
                 Verify(text, expected, runFormatter: false, languageName: LanguageNames.VisualBasic);
@@ -329,10 +329,10 @@ End Class";
 
                 var expected = @"
 Class C 
-    Private _field As Integer
+    Private m_field As Integer
 
     Sub M()
-        Console.WriteLine(_field)
+        Console.WriteLine(m_field)
     End Sub
 End Class";
 
@@ -354,10 +354,10 @@ End Class";
 
                 var expected = @"
 Class C1
-    Private _field As Integer
+    Private m_field As Integer
 
     Function M(p As C1) As Integer
-        Dim x = p._field
+        Dim x = p.m_field
         Return x
     End Function
 End Class";
@@ -376,7 +376,7 @@ End Class";
 
                 var expected = @"
 Class C1
-    Private _field WithEvents As Integer
+    Private m_field WithEvents As Integer
 End Class";
 
                 Verify(text, expected, languageName: LanguageNames.VisualBasic);
@@ -388,7 +388,8 @@ End Class";
                 var text = @"
 class C
 {
-    int ts_instance;
+    int m_instancem;
+    int ts_instancets;
     static int ts_Static;
     [System.ThreadStatic]static int ts_ThreadStatic;
 }
@@ -397,7 +398,8 @@ class C
                 var expected = @"
 class C
 {
-    int _instance;
+    int m_instancem;
+    int m_instancets;
     static int s_static;
     [System.ThreadStatic]static int t_threadStatic;
 }

@@ -20,7 +20,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
     internal partial class PrivateFieldNamingRule : IGlobalSemanticFormattingRule
     {
         internal const string Name = "FieldNames";
-        internal const string Description = "Prefix private fields with _ and statics with s_";
+        internal const string Description = "Prefix private fields with m_ and statics with s_";
 
         #region CommonRule
 
@@ -90,6 +90,11 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     name = name.Substring(2);
                 }
 
+                if (name.Length > 2 && name.StartsWith("m_", StringComparison.OrdinalIgnoreCase))
+                {
+                    name = name.Substring(2);
+                }
+
                 // Some .NET code uses "ts_" prefix for thread static
                 if (name.Length > 3 && name.StartsWith("ts_", StringComparison.OrdinalIgnoreCase))
                 {
@@ -119,7 +124,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
                     }
                 }
 
-                return "_" + name;
+                return "m_" + name;
             }
 
             private async Task<Solution> CleanSolutionAsync(Solution newSolution, Solution oldSolution, CancellationToken cancellationToken)
@@ -192,7 +197,7 @@ namespace Microsoft.DotNet.CodeFormatting.Rules
         {
             if (isInstance)
             {
-                return name.Length > 0 && name[0] == '_';
+                return name.Length > 1 && (name[0] == 'm') && name[1] == '_';
             }
             else
             {

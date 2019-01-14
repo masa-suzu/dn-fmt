@@ -69,11 +69,11 @@ class C {
             var expected = @"
 internal class C
 {
-    private int _field;
+    private int m_field;
 
     private void M()
     {
-        N(_field);
+        N(m_field);
     }
 }";
 
@@ -97,10 +97,10 @@ class C {
 
             var expected = @"
 class C {
-    int _field;
+    int m_field;
 
     void M() {
-        N(this._field);
+        N(this.m_field);
     }
 }";
 
@@ -152,11 +152,11 @@ class C {
             var expected = @"
 internal class C
 {
-    private int _field;
+    private int m_field;
 
     private void M()
     {
-        _field = 42;
+        m_field = 42;
     }
 }";
 
@@ -404,7 +404,7 @@ using System.Collections.Generic;
 
 internal class C
 {
-    private object _myVariable;
+    private object m_myVariable;
 
     private void M()
     {
@@ -415,7 +415,7 @@ internal class C
 
         dict.TryGetValue(""key"", out object myVariable);
 
-        _myVariable = myVariable;
+        m_myVariable = myVariable;
     }
 }";
 
