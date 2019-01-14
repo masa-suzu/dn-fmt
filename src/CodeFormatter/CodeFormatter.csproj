@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net46</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="CopyrightHeader.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="IllegalHeaders.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.DotNet.CodeFormatting\Microsoft.DotNet.CodeFormatting.csproj" />
+  </ItemGroup>
+  <Target Name="CopyMSBuildForMono"
+          AfterTargets="AfterBuild"
+          Condition=" '$(OS)' == 'Unix' ">
+      <ItemGroup>
+          <_CopyItems Include="..\ExternalApis\msbuild\*.*" />
+      </ItemGroup>
+      <Copy
+          SourceFiles="@(_CopyItems)"
+          DestinationFolder="$(TargetDir)\msbuild"
+          />
+  </Target>
+  <Target Name="AfterClean"
+          Condition=" '$(OS)' == 'Unix' ">
+      <ItemGroup>
+          <LocalMonoMSBuild Include="$(TargetDir)\msbuild" />
+      </ItemGroup>
+      <RemoveDir Directories="@(LocalMonoMSBuild)" />
+  </Target>
+</Project>

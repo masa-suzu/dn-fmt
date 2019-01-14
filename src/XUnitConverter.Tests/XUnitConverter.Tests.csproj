@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XUnitConverter\XUnitConverter.csproj" />
+    <PackageReference Include="xunit" Version="$(XunitPackageVersion)" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitPackageVersion)" />
+    <PackageReference Include="Microsoft.VisualStudio.TestPlatform" Version="$(MicrosoftVisualStudioTestPlatformPackageVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\XUnitConverter\MSTestNamespaces.txt">
+      <Link>MSTestNamespaces.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
